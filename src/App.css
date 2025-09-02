@@ -166,7 +166,6 @@
   margin: 0;
   padding: 1rem;
   box-sizing: border-box;
-  min-height: 100vh;
 }
 
 .art-header {
@@ -356,13 +355,21 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin-bottom: 2rem;
 }
 
-.author-bio h2 {
-  color: #333;
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
+.author-info h3 {
+  text-align: left;
+  font-style: italic;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  color: var(--art-text-color);
+}
+
+.about-content h3 {
+  text-align: left;
+  font-style: italic;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .author-title {

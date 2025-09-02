@@ -2,8 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowLeft, faImage } from '@fortawesome/free-solid-svg-icons'
-import { 
-    ART_CATEGORIES, 
+import {  
     VALIDATION, 
     TEXT, 
     DEFAULTS 
@@ -125,7 +124,6 @@ function AddArtPage() {
         const submitData = new FormData();
         submitData.append('title', formData.title);
         submitData.append('description', formData.description);
-        submitData.append('category', formData.category);
         submitData.append('year', formData.year);
         submitData.append('image', formData.image);
         
@@ -180,22 +178,6 @@ function AddArtPage() {
                         maxLength={VALIDATION.MAX_DESCRIPTION_LENGTH}
                         placeholder={TEXT.FORM_PLACEHOLDERS.DESCRIPTION}
                     />
-                </div>
-                
-                <div className="form-group">
-                    <label htmlFor="category">{TEXT.FORM_LABELS.CATEGORY}</label>
-                    <select 
-                        id="category" 
-                        name="category" 
-                        value={formData.category}
-                        onChange={handleChange}
-                    >
-                        {ART_CATEGORIES.map(category => (
-                            <option key={category.id} value={category.id}>
-                                {category.label}
-                            </option>
-                        ))}
-                    </select>
                 </div>
                 
                 <div className="form-group">

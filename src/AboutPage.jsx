@@ -1,27 +1,16 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faEnvelope, faPalette, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons'
-import { TEXT } from './config/parameters'
+import { faUser, faEnvelope, faPalette, faMapMarkerAlt, faNewspaper } from '@fortawesome/free-solid-svg-icons'
+import { TEXT, ARTIST_NAME, ARTIST_BIO } from './config/parameters'
 import './App.css'
 
 function AboutPage() {
     return (
         <div className="art-layout-container">
-            <header className="about-header">
-                <h1>{TEXT.ABOUT_PAGE_TITLE}</h1>
-                <div className="author-image-container">
-                    {/* Placeholder for author image */}
-                    <div className="author-image-placeholder">
-                        <FontAwesomeIcon icon={faUser} size="4x" />
-                    </div>
-                </div>
-            </header>
-
             <section className="about-content">
                 <div className="author-bio">
-                    <h2>Julia Neubauer</h2>
-                    <p className="author-title">Contemporary Visual Artist</p>
+                    <h3>{TEXT.ABOUT_PAGE_TITLE}</h3>
                     
                     <p className="bio-text">
                         Welcome to my artistic journey. I am a passionate visual artist based in Vienna, exploring the boundaries between traditional techniques and digital innovation. My work seeks to capture the ephemeral moments of beauty in everyday life and transform them into lasting impressions.
@@ -37,24 +26,34 @@ function AboutPage() {
                 </div>
 
                 <div className="author-info">
+                    <h3>{ARTIST_BIO.title}</h3>
                     <div className="info-item">
                         <FontAwesomeIcon icon={faPalette} />
                         <span>Specializing in acrylic painting, digital illustration, and mixed media</span>
                     </div>
                     <div className="info-item">
                         <FontAwesomeIcon icon={faMapMarkerAlt} />
-                        <span>Based in Vienna, Austria</span>
+                        <span>{ARTIST_BIO.location}</span>
                     </div>
                     <div className="info-item">
                         <FontAwesomeIcon icon={faEnvelope} />
-                        <span>contact@julianeubauer.art</span>
+                        <span>
+                            <a href={`mailto:${ARTIST_BIO.contactEmail}`}>
+                                {ARTIST_BIO.contactEmail}
+                            </a>
+                        </span>
+                    </div>
+                    <div className="info-item">
+                        <FontAwesomeIcon icon={faNewspaper} />
+                        <span>
+                            {ARTIST_BIO.reviewsText}{' '}
+                            <a href={ARTIST_BIO.reviewsPage} target="_blank" rel="noopener noreferrer">
+                                {ARTIST_BIO.reviewsPage}
+                            </a>
+                        </span>
                     </div>
                 </div>
             </section>
-
-            <footer className="about-footer">
-                <Link to="/" className="back-link">Back to Main Page</Link>
-            </footer>
         </div>
     )
 }

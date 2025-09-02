@@ -23,7 +23,8 @@ export const COLORS = {
   INFO: '#3498db',
   
   // Background colors
-  BG_LIGHT: '#f8f9fa',        // --art-bg-color (light theme)
+  BG_LIGHT: '#ebd7c6ff',        // --art-bg-color (light theme)
+  // BG_LIGHT: '#f8f9fa',        // --art-bg-color (light theme)
   BG_DARK: '#222831',         // --art-bg-color (dark theme)
   
   // Text colors
@@ -48,32 +49,34 @@ export const VALIDATION = {
   MIN_TITLE_LENGTH: 3,
   MAX_TITLE_LENGTH: 100,
   MAX_DESCRIPTION_LENGTH: 1000,
-  MIN_YEAR: 1900,
+  MIN_YEAR: 2000,
   MAX_YEAR: new Date().getFullYear(),
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   MAX_IMAGE_SIZE: 5 * 1024 * 1024  // 5MB in bytes
 };
 
-// Artwork categories
-export const ART_CATEGORIES = [
-  { id: 'digital', label: 'Digital Art' },
-  { id: 'traditional', label: 'Traditional Art' },
-  { id: 'photography', label: 'Photography' },
-  { id: 'mixed-media', label: 'Mixed Media' },
-  { id: 'sculpture', label: 'Sculpture' },
-  { id: 'illustration', label: 'Illustration' }
-];
+// Artist information
+export const ARTIST_NAME = 'Zuzanna Stępska';
+
+export const ARTIST_BIO = {
+  name: ARTIST_NAME,
+  title: 'Contemporary Artist',
+  location: 'Based in Poznań, Poland',
+  contactEmail: 'some.email@something.com',
+  reviewsPage: 'some_reviewsPage.com',
+  reviewsText: 'Read my reviews at'
+}
 
 // Application text content
 export const TEXT = {
-  APP_TITLE: 'Art Portfolio',
-  APP_SUBTITLE: 'A collection of creative works',
-  FOOTER_COPYRIGHT: `© ${new Date().getFullYear()} Zuzanna Stępska Portfolio. All rights reserved.`,
+  APP_TITLE: `${ARTIST_NAME} Portfolio`,
+  APP_SUBTITLE: 'A collection of art works',
+  FOOTER_COPYRIGHT: `© ${new Date().getFullYear()} ${ARTIST_NAME} Portfolio. All rights reserved.`,
   
   // Page titles
   ADD_ART_TITLE: 'Add New Artwork',
   ADD_ART_SUBTITLE: 'Use the form below to add a new piece to your portfolio.',
-  ABOUT_PAGE_TITLE: 'About the Artist',
+  ABOUT_PAGE_TITLE: 'About',
   
   // Button labels
   SUBMIT_BUTTON: 'Submit Artwork',

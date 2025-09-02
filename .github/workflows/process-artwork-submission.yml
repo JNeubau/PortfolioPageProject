@@ -22,7 +22,7 @@ jobs:
       - name: Process submission
         run: |
           echo '${{ toJSON(github.event.client_payload) }}' > submission.json
-          node .github/scripts/update-data.js
+          node --experimental-modules .github/scripts/update-data.js
         
       - name: Commit and push if changes
         run: |

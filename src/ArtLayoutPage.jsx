@@ -16,16 +16,24 @@ function ArtLayoutPage() {
 
   return (
     <div className="art-layout-container">
-      {/* <main className="gallery-grid"> */}
-        {artworks.map((artwork) => (
-          <GalleryCard
-            key={artwork.id}
-            title={artwork.title}
-            description={`${artwork.description} (${artwork.year})`}
-            imageData={artwork.imageData}
-          />
-        ))}
-      {/* </main> */}
+      <main className="gallery-grid">
+        {artworks.length > 0 ? (
+          artworks.map((artwork) => (
+            <GalleryCard
+              key={artwork.id}
+              title={artwork.title}
+              description={`${artwork.description} (${artwork.year})`}
+              images={artwork.images}
+              imageData={artwork.imageData}
+            />
+          ))
+        ) : (
+          <div className="empty-gallery-message">
+            <p>No artworks found. Add some art to get started!</p>
+          </div>
+        )}
+      </main>
+      <Link to="/" className="back-link">Back to Main Page</Link>
     </div>
   )
 }

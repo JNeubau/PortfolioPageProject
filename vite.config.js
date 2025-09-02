@@ -21,6 +21,17 @@ const saveArtworkPlugin = () => {
               const data = JSON.parse(body);
               const filePath = path.resolve(__dirname, 'src/assets/data.json');
               
+              // Ensure data.json file exists with proper structure
+              let existingData = { artworks: [] };
+              if (fs.existsSync(filePath)) {
+                try {
+                  const fileContent = fs.readFileSync(filePath, 'utf8');
+                  existingData = JSON.parse(fileContent);
+                } catch (error) {
+                  console.warn('Error parsing existing data.json, creating new file:', error);
+                }
+              }
+              
               // Format the data nicely
               const jsonData = JSON.stringify({ artworks: data.artworks }, null, 2);
               

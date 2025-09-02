@@ -1,4 +1,6 @@
 *.local
+.env*
+test-workflow.js
 
 # Editor directories and files
 .vscode/*

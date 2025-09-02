@@ -21,20 +21,24 @@ function App() {
           <h1 style={{width: '50%', textAlign: 'right'}}>{TEXT.APP_TITLE}</h1>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', width: '50%'}}>
             <p className="subtitle" style={{marginLeft: '5px'}}>{TEXT.APP_SUBTITLE}</p>
-            <div className='buttons'>
+            <div className='buttons' style={{display: 'flex', gap: '8px'}}>
               <button 
                 onClick={() => changeLayout(LAYOUTS.ART)}
                 className={`layout-icon ${layout === LAYOUTS.ART ? 'active' : ''}`}
-                title="Art"
+                title={LAYOUTS.ART}
+                style={{minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
               >
                 <FontAwesomeIcon icon={faImages} size="lg" />
+                <span style={{marginLeft: '6px'}}>{LAYOUTS.ART.toUpperCase()}</span>
               </button>
               <button 
                 onClick={() => changeLayout(LAYOUTS.ABOUT)}
                 className={`layout-icon ${layout === LAYOUTS.ABOUT ? 'active' : ''}`}
-                title="About"
+                title={LAYOUTS.ABOUT}
+                style={{minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
               >
                 <FontAwesomeIcon icon={faPerson} size="lg" />
+                <span style={{marginLeft: '6px'}}>{LAYOUTS.ABOUT.toUpperCase()}</span>
               </button>
             </div>
           </div>

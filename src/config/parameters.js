@@ -86,7 +86,6 @@ export const TEXT = {
   FORM_LABELS: {
     TITLE: 'Artwork Title',
     DESCRIPTION: 'Description',
-    CATEGORY: 'Category',
     YEAR: 'Year Created',
     IMAGE: 'Upload Image'
   },
@@ -111,6 +110,5 @@ export const TEXT = {
 // Default values
 export const DEFAULTS = {
   LAYOUT: LAYOUTS.ART,
-  CATEGORY: 'digital',
   YEAR: new Date().getFullYear()
 };

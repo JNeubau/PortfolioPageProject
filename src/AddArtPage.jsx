@@ -37,10 +37,10 @@ function AddArtPage() {
             if (result.success) {
                 console.log('Data saved to file successfully');
             } else {
-                console.error('Error saving data to file:', result.message);
+                console.error('Error saving data:', result.message);
             }
         } catch (error) {
-            console.error('Error saving data to file:', error);
+            console.error('Error saving data:', error);
         }
     };
 

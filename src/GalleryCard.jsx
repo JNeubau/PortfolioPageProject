@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import './App.css';
 
-function GalleryCard({ title, description, imagePath, category }) {
+function GalleryCard({ title, description, imageData }) {
     return (
-        <div className={`gallery-item ${category || 'digital'}`}>
-            {imagePath ? (
+        <div className={`gallery-item `}>
+            {imageData ? (
                 <div className="item-image">
                     <img 
-                        src={imagePath} 
+                        src={imageData} 
                         alt={title} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                     />

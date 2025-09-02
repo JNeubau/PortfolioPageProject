@@ -1,34 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './App.css'
 import GalleryCard from './GalleryCard'
+import artworkData from './assets/data.json'
 
 function ArtLayoutPage() {
+  const [artworks, setArtworks] = useState([])
+  
+  useEffect(() => {
+    // Load artworks from data.json
+    if (artworkData && artworkData.artworks) {
+      setArtworks(artworkData.artworks)
+    }
+  }, [])
+
   return (
     <div className="art-layout-container">
-      <main className="gallery-grid">
-        <div className="gallery-item digital">
-          <div className="item-image placeholder"></div>
-          <h3>Digital Artwork 1</h3>
-          <p>Created with Procreate, 2025</p>
-        </div>
-        <div className="gallery-item traditional">
-          <div className="item-image placeholder"></div>
-          <h3>Watercolor Painting</h3>
-          <p>Watercolor on paper, 2024</p>
-        </div>
-        <div className="gallery-item digital">
-          <div className="item-image placeholder"></div>
-          <h3>Digital Illustration</h3>
-          <p>Adobe Illustrator, 2025</p>
-        </div>
-        <div className="gallery-item traditional">
-          <div className="item-image placeholder"></div>
-          <h3>Acrylic Painting</h3>
-          <p>Acrylic on canvas, 2024</p>
-        </div>
-      </main>
-      <GalleryCard title={"Sample Art"} description={"This is a sample description."} imagePath={null} category={"digital"} />
+      {/* <main className="gallery-grid"> */}
+        {artworks.map((artwork) => (
+          <GalleryCard
+            key={artwork.id}
+            title={artwork.title}
+            description={`${artwork.description} (${artwork.year})`}
+            imageData={artwork.imageData}
+          />
+        ))}
+      {/* </main> */}
+      <Link to="/" className="back-link">Back to Main Page</Link>
     </div>
   )
 }

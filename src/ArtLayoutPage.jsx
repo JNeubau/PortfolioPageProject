@@ -26,7 +26,6 @@ function ArtLayoutPage() {
           />
         ))}
       {/* </main> */}
-      <Link to="/" className="back-link">Back to Main Page</Link>
     </div>
   )
 }

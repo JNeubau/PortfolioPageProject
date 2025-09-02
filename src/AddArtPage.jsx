@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faArrowLeft, faImage, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faArrowLeft, faImage, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { 
     VALIDATION, 
     TEXT, 
     DEFAULTS 
 } from './config/parameters'
+import { submitArtworkToGitHub } from './api/github'
 import './App.css'
 
 function AddArtPage() {
@@ -20,27 +21,54 @@ function AddArtPage() {
     });
     const [imagePreviews, setImagePreviews] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
-    // Function to save data to the file system through our custom API endpoint
-    const saveToFile = async (artworks) => {
+    // Function to save data using GitHub API and update local state
+    const saveArtwork = async (newArtwork) => {
         try {
-            const response = await fetch('/api/save-artwork', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ artworks }),
-            });
+            setIsSubmitting(true);
             
-            const result = await response.json();
+            // Submit to GitHub API
+            const result = await submitArtworkToGitHub(newArtwork);
             
-            if (result.success) {
-                console.log('Data saved to file successfully');
-            } else {
-                console.error('Error saving data:', result.message);
+            // Even if GitHub API fails, we still save to localStorage
+            // This ensures data is saved locally even if the token is not configured
+            
+            // Get existing artworks from localStorage or initialize empty array
+            let existingArtworks = [];
+            try {
+                const savedData = localStorage.getItem('artworks');
+                if (savedData) {
+                    existingArtworks = JSON.parse(savedData);
+                }
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
             }
+            
+            // Add the new artwork to local storage
+            existingArtworks.push(newArtwork);
+            localStorage.setItem('artworks', JSON.stringify(existingArtworks));
+            
+            // Create a custom event to notify other components that data has been updated
+            window.dispatchEvent(new CustomEvent('artworksUpdated', { 
+                detail: { artworks: existingArtworks } 
+            }));
+            
+            // If GitHub API was not successful, show a warning but still return true
+            // since we saved to localStorage
+            if (!result.success) {
+                console.warn('GitHub API submission was not successful:', result.message);
+                alert('Your artwork was saved locally but there was an issue saving to the server: ' + result.message);
+                return true;
+            }
+            
+            return true;
         } catch (error) {
-            console.error('Error saving data:', error);
+            console.error('Error saving artwork:', error);
+            alert('There was an error: ' + error.message + ' Your artwork may not have been saved.');
+            return false;
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -204,31 +232,18 @@ function AddArtPage() {
             dateCreated: new Date().toISOString()
         };
         
-        // Get existing artworks from localStorage or initialize empty array
-        let existingArtworks = [];
-        try {
-            const savedData = localStorage.getItem('artworks');
-            if (savedData) {
-                existingArtworks = JSON.parse(savedData);
-            }
-        } catch (error) {
-            console.error('Error reading from localStorage:', error);
+        // Save artwork using GitHub API and update local state
+        const saveResult = await saveArtwork(newArtwork);
+        
+        if (saveResult) {
+            // Show success message
+            alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
+            
+            // Navigate back to home page
+            navigate('/');
+        } else {
+            alert('There was an error saving your artwork. Please try again.');
         }
-        
-        // Add the new artwork
-        existingArtworks.push(newArtwork);
-        
-        // Save to localStorage for persistence between sessions
-        localStorage.setItem('artworks', JSON.stringify(existingArtworks));
-        
-        // Save to file using our custom API endpoint
-        saveToFile(existingArtworks);
-        
-        // Show success message
-        alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
-        
-        // Navigate back to home page
-        navigate('/');
     }
 
     const handleBackToHome = () => {
@@ -311,7 +326,7 @@ function AddArtPage() {
                                             className="remove-image-btn" 
                                             onClick={() => handleRemoveImage(index)}
                                         >
-                                            <FontAwesomeIcon icon={faTrash} />
+                                            ×
                                         </button>
                                     </div>
                                 ))}
@@ -332,11 +347,11 @@ function AddArtPage() {
                 </div>
 
                 <div className="form-actions">
-                    <button type="submit" className="submit-button">
+                    <button type="submit" className="submit-button" disabled={isSubmitting}>
                         <FontAwesomeIcon icon={faUpload} className="button-icon" />
-                        {TEXT.SUBMIT_BUTTON}
+                        {isSubmitting ? 'Submitting...' : TEXT.SUBMIT_BUTTON}
                     </button>
-                    <button type="button" className="back-button" onClick={handleBackToHome}>
+                    <button type="button" className="back-button" onClick={handleBackToHome} disabled={isSubmitting}>
                         <FontAwesomeIcon icon={faArrowLeft} className="button-icon" />
                         {TEXT.BACK_BUTTON}
                     </button>

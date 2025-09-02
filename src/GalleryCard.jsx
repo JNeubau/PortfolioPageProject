@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 
-function GalleryCard({ title, description, images, imageData }) {
+function GalleryCard({ id, title, description, images, imageData }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showFullImage, setShowFullImage] = useState(false);
     

@@ -39,8 +39,9 @@ export async function testGitHubToken() {
   }
   
   try {
-    // Use a simple endpoint to test token validity
-    const response = await fetch('https://api.github.com/user', {
+    // First try the rate limit endpoint which requires less permissions
+    console.log('Testing token with rate_limit endpoint...');
+    const rateResponse = await fetch('https://api.github.com/rate_limit', {
       method: 'GET',
       headers: {
         'Authorization': `token ${GITHUB_TOKEN}`,
@@ -48,13 +49,38 @@ export async function testGitHubToken() {
       }
     });
     
-    if (response.status === 200) {
-      // If successful, get the user data to display in console for debugging
-      const userData = await response.json();
-      console.log('GitHub token is valid for user:', userData.login);
-      return true;
+    if (rateResponse.status === 200) {
+      console.log('Rate limit check passed, token is valid');
+      
+      // Now check if we can access the repository
+      console.log('Testing repository access...');
+      const repoResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      
+      if (repoResponse.status === 200) {
+        console.log('Repository access check passed');
+        
+        // Try to check token scopes
+        const scopes = rateResponse.headers.get('x-oauth-scopes') || 'none';
+        console.log('Token scopes:', scopes);
+        
+        // Check for required scopes
+        if (!scopes.includes('repo') && !scopes.includes('public_repo')) {
+          console.warn('WARNING: Token is missing repo/public_repo scope, which is required for repository_dispatch');
+        }
+        
+        return true;
+      } else {
+        console.warn('Repository access check failed with status:', repoResponse.status);
+        return false;
+      }
     } else {
-      console.warn('GitHub API returned status:', response.status);
+      console.warn('Rate limit check failed with status:', rateResponse.status);
       return false;
     }
   } catch (error) {
@@ -89,13 +115,44 @@ export async function submitArtworkToGitHub(artwork) {
       };
     }
     
-    const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/dispatches`, {
-      method: 'POST',
+    // First verify repository access before attempting dispatch
+    const repoCheckResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`, {
+      method: 'GET',
       headers: {
         'Authorization': `token ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if (repoCheckResponse.status !== 200) {
+      console.error(`Cannot access repository: ${REPO_OWNER}/${REPO_NAME} (${repoCheckResponse.status})`);
+      return {
+        success: false,
+        message: `Cannot access repository. Please check if '${REPO_OWNER}/${REPO_NAME}' exists and your token has access.`
+      };
+    }
+    
+    // Token encoding debug information
+    console.log('Token prefix check:', GITHUB_TOKEN.startsWith('ghp_') || GITHUB_TOKEN.startsWith('github_pat_'));
+    console.log('Using authorization header format:', `token ${GITHUB_TOKEN.substring(0, 3)}...`);
+    
+    // Prepare headers with correct token format
+    const headers = {
+      'Authorization': `token ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    };
+    
+    // Debug headers (without exposing full token)
+    console.log('Request headers:', {
+      'Authorization': headers.Authorization.substring(0, 9) + '...',
+      'Accept': headers.Accept,
+      'Content-Type': headers['Content-Type']
+    });
+    
+    const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/dispatches`, {
+      method: 'POST',
+      headers: headers,
       body: JSON.stringify({
         event_type: 'artwork-submission',
         client_payload: {
@@ -106,20 +163,32 @@ export async function submitArtworkToGitHub(artwork) {
 
     if (response.status === 204) {
       // 204 No Content is the expected successful response
+      console.log('Repository dispatch succeeded with status 204');
       return { success: true, message: 'Artwork submitted successfully. It will be processed soon.' };
     } else if (response.status === 401) {
       // Unauthorized - invalid token
-      console.error('GitHub API Error: Invalid token or insufficient permissions');
+      console.error('GitHub API Error: Invalid token or insufficient permissions (401)');
+      console.error('This may be due to an incorrect token encoding or an invalid token');
       return { 
         success: false, 
         message: 'GitHub authentication failed. Your token may be invalid or expired.'
       };
     } else if (response.status === 404) {
       // Not found - repository doesn't exist or token doesn't have access
-      console.error(`GitHub API Error: Repository ${REPO_OWNER}/${REPO_NAME} not found or no access`);
+      console.error(`GitHub API Error: Repository ${REPO_OWNER}/${REPO_NAME} not found or no access to dispatches endpoint (404)`);
+      
+      // Since we already verified repo access, this is likely a permissions issue
       return {
         success: false,
-        message: 'Repository not found or your token does not have access to it.'
+        message: 'Your token may not have permission to trigger workflows. Please ensure it has the "repo" and "workflow" scopes.'
+      };
+    } else if (response.status === 403) {
+      // Forbidden - token doesn't have sufficient permissions
+      console.error('GitHub API Error: Insufficient permissions (403)');
+      console.error('Your token does not have the required scopes for this operation');
+      return {
+        success: false,
+        message: 'Your GitHub token does not have sufficient permissions for this operation.'
       };
     } else {
       // Other errors
@@ -127,8 +196,15 @@ export async function submitArtworkToGitHub(artwork) {
       try {
         const errorData = await response.json();
         errorMessage += ` - ${JSON.stringify(errorData)}`;
+        console.error('Full error details:', errorData);
       } catch (e) {
         // If we can't parse the error, just use status code
+        try {
+          const errorText = await response.text();
+          console.error('Error response text:', errorText);
+        } catch (textError) {
+          console.error('Could not read error response body');
+        }
       }
       console.error(errorMessage);
       throw new Error(errorMessage);

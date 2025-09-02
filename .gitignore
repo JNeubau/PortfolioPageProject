@@ -1,6 +1,10 @@
 *.local
 .env*
 test-workflow.js
+test-repository-access.js
+test-token-encoding.js
+test-token-scopes.js
+*.md
 
 # Editor directories and files
 .vscode/*

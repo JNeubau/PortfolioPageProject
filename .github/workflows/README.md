@@ -12,6 +12,22 @@ For the GitHub Actions workflow to successfully push changes to the repository, 
 
 This allows the GitHub Actions bot to push changes to your repository.
 
+## Job Permissions (IMPORTANT UPDATE)
+
+In addition to the repository settings, you should also explicitly set permissions in the workflow file. We've updated the workflow to include this:
+
+```yaml
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # ... workflow steps
+```
+
+This ensures the job has write permissions to the repository contents.
+
 ## Using Personal Access Token (Alternative Method)
 
 If the default `GITHUB_TOKEN` doesn't have sufficient permissions, you can use a Personal Access Token (PAT) instead:
@@ -42,3 +58,5 @@ If you continue to experience permission issues:
 1. Make sure the branch is not protected or update branch protection rules
 2. Verify the GitHub Actions bot has write access to the repository
 3. Check if your organization has any restrictions on GitHub Actions
+4. Try simplifying the git push command (we've updated the workflow to use a simpler command)
+5. Review GitHub Action logs for specific error messages

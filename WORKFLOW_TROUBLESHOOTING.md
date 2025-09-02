@@ -56,6 +56,7 @@ const REPO_NAME = 'PortfolioPageProject';
 - Repository dispatch fails with 403 Forbidden
 - GitHub token works for getting user data but not for repository dispatch
 - Workflow runs but fails with "Permission to [repository] denied to github-actions[bot]"
+- Error message: "remote: Permission to [...].git denied to github-actions[bot]"
 
 **Solutions:**
 - Make sure your token has the `repo` scope (for private repositories) or `public_repo` scope (for public repositories)
@@ -67,6 +68,16 @@ const REPO_NAME = 'PortfolioPageProject';
   3. Scroll down to "Workflow permissions"
   4. Select "Read and write permissions"
   5. Save the changes
+- Explicitly set permissions in the workflow file:
+  ```yaml
+  jobs:
+    update-data:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: write
+      steps:
+        # ... workflow steps
+  ```
 
 ### 4. Workflow Syntax Errors
 

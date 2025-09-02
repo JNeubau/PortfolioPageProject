@@ -17,11 +17,30 @@ function App() {
   return (
     <div className="full-width-container">
       <header className="art-header">
-        <div className='header-bar'>
-          <h1 style={{width: '50%', textAlign: 'right'}}>{TEXT.APP_TITLE}</h1>
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'start', width: '50%'}}>
-            <p className="subtitle" style={{marginLeft: '5px'}}>{TEXT.APP_SUBTITLE}</p>
-            <div className='buttons' style={{display: 'flex', gap: '8px'}}>
+        <div className='header-bar' style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center'}}>
+          <h1
+            className="app-title"
+            style={{
+              width: '50%',
+              textAlign: 'right',
+              order: window.innerWidth < 600 ? 0 : 1,
+              flexBasis: window.innerWidth < 600 ? '100%' : '50%',
+              marginBottom: window.innerWidth < 600 ? '12px' : 0
+            }}
+          >
+            {TEXT.APP_TITLE}
+          </h1>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'start',
+              width: window.innerWidth < 600 ? '100%' : '50%',
+              order: window.innerWidth < 600 ? 1 : 2
+            }}
+          >
+            <p className="subtitle">{TEXT.APP_SUBTITLE}</p>
+            <div className='buttons' style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
               <button 
                 onClick={() => changeLayout(LAYOUTS.ART)}
                 className={`layout-icon ${layout === LAYOUTS.ART ? 'active' : ''}`}
@@ -29,7 +48,7 @@ function App() {
                 style={{minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
               >
                 <FontAwesomeIcon icon={faImages} size="lg" />
-                <span style={{marginLeft: '6px'}}>{LAYOUTS.ART.toUpperCase()}</span>
+                <span>{LAYOUTS.ART.toUpperCase()}</span>
               </button>
               <button 
                 onClick={() => changeLayout(LAYOUTS.ABOUT)}
@@ -38,7 +57,7 @@ function App() {
                 style={{minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
               >
                 <FontAwesomeIcon icon={faPerson} size="lg" />
-                <span style={{marginLeft: '6px'}}>{LAYOUTS.ABOUT.toUpperCase()}</span>
+                <span>{LAYOUTS.ABOUT.toUpperCase()}</span>
               </button>
             </div>
           </div>

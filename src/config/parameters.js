@@ -86,23 +86,22 @@ export const TEXT = {
   FORM_LABELS: {
     TITLE: 'Artwork Title',
     DESCRIPTION: 'Description',
-    CATEGORY: 'Category',
     YEAR: 'Year Created',
-    IMAGE: 'Upload Image'
+    IMAGES: 'Upload Images'
   },
 
   // Form placeholders
   FORM_PLACEHOLDERS: {
     TITLE: 'Enter the title of your artwork',
     DESCRIPTION: 'Describe your artwork, techniques used, inspiration, etc.',
-    FILE_UPLOAD: 'Choose file or drop it here'
+    FILE_UPLOAD: 'Choose files or drop them here'
   },
   
   // Success/error messages
   MESSAGES: {
     SUBMISSION_SUCCESS: (title) => `Art "${title}" submitted successfully!`,
     TITLE_REQUIRED: 'Please enter a title for your artwork',
-    IMAGE_REQUIRED: 'Please upload an image of your artwork',
+    IMAGE_REQUIRED: 'Please upload at least one image of your artwork',
     INVALID_IMAGE_TYPE: 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)',
     IMAGE_TOO_LARGE: 'Image size exceeds the maximum allowed (5MB)'
   }
@@ -111,6 +110,5 @@ export const TEXT = {
 // Default values
 export const DEFAULTS = {
   LAYOUT: LAYOUTS.ART,
-  CATEGORY: 'digital',
   YEAR: new Date().getFullYear()
 };

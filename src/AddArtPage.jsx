@@ -1,12 +1,13 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faArrowLeft, faImage } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faArrowLeft, faImage, faPlus } from '@fortawesome/free-solid-svg-icons'
 import { 
     VALIDATION, 
     TEXT, 
     DEFAULTS 
 } from './config/parameters'
+import { submitArtworkToGitHub } from './api/github'
 import './App.css'
 
 function AddArtPage() {
@@ -16,10 +17,60 @@ function AddArtPage() {
         title: '',
         description: '',
         year: DEFAULTS.YEAR,
-        image: null
+        images: []
     });
-    const [imagePreview, setImagePreview] = useState(null);
+    const [imagePreviews, setImagePreviews] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Function to save data using GitHub API and update local state
+    const saveArtwork = async (newArtwork) => {
+        try {
+            setIsSubmitting(true);
+            
+            // Submit to GitHub API
+            const result = await submitArtworkToGitHub(newArtwork);
+            
+            // Even if GitHub API fails, we still save to localStorage
+            // This ensures data is saved locally even if the token is not configured
+            
+            // Get existing artworks from localStorage or initialize empty array
+            let existingArtworks = [];
+            try {
+                const savedData = localStorage.getItem('artworks');
+                if (savedData) {
+                    existingArtworks = JSON.parse(savedData);
+                }
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
+            }
+            
+            // Add the new artwork to local storage
+            existingArtworks.push(newArtwork);
+            localStorage.setItem('artworks', JSON.stringify(existingArtworks));
+            
+            // Create a custom event to notify other components that data has been updated
+            window.dispatchEvent(new CustomEvent('artworksUpdated', { 
+                detail: { artworks: existingArtworks } 
+            }));
+            
+            // If GitHub API was not successful, show a warning but still return true
+            // since we saved to localStorage
+            if (!result.success) {
+                console.warn('GitHub API submission was not successful:', result.message);
+                alert('Your artwork was saved locally but there was an issue saving to the server: ' + result.message);
+                return true;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error saving artwork:', error);
+            alert('There was an error: ' + error.message + ' Your artwork may not have been saved.');
+            return false;
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -30,19 +81,32 @@ function AddArtPage() {
     }
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            // Process each file
+            const newImages = [...formData.images, ...files];
             setFormData(prevData => ({
                 ...prevData,
-                image: file
+                images: newImages
             }));
             
-            // Create image preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
+            // Create image previews for each new file
+            Promise.all(
+                files.map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            resolve({
+                                file,
+                                preview: reader.result
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                })
+            ).then(newPreviews => {
+                setImagePreviews(prev => [...prev, ...newPreviews]);
+            });
         }
     }
 
@@ -68,31 +132,53 @@ function AddArtPage() {
         e.stopPropagation();
         setIsDragging(false);
         
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.type.startsWith('image/')
+        );
+        
+        if (files.length > 0) {
+            // Process each file
+            const newImages = [...formData.images, ...files];
             setFormData(prevData => ({
                 ...prevData,
-                image: file
+                images: newImages
             }));
             
-            // Create image preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-            
-            // Update the file input element
-            if (fileInputRef.current) {
-                // Create a new FileList with the dropped file
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                fileInputRef.current.files = dataTransfer.files;
-            }
+            // Create image previews for each new file
+            Promise.all(
+                files.map(file => {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            resolve({
+                                file,
+                                preview: reader.result
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                })
+            ).then(newPreviews => {
+                setImagePreviews(prev => [...prev, ...newPreviews]);
+            });
         }
     }
+    
+    const handleRemoveImage = (index) => {
+        const newImages = [...formData.images];
+        newImages.splice(index, 1);
+        
+        const newPreviews = [...imagePreviews];
+        newPreviews.splice(index, 1);
+        
+        setFormData(prevData => ({
+            ...prevData,
+            images: newImages
+        }));
+        setImagePreviews(newPreviews);
+    }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         // Validate form using validation rules from parameters
@@ -101,43 +187,63 @@ function AddArtPage() {
             return;
         }
         
-        if (!formData.image) {
+        if (formData.images.length === 0) {
             alert(TEXT.MESSAGES.IMAGE_REQUIRED);
             return;
         }
         
-        // Validate image type
-        if (!VALIDATION.ALLOWED_IMAGE_TYPES.includes(formData.image.type)) {
-            alert(TEXT.MESSAGES.INVALID_IMAGE_TYPE);
-            return;
+        // Validate image types and sizes
+        for (const image of formData.images) {
+            if (!VALIDATION.ALLOWED_IMAGE_TYPES.includes(image.type)) {
+                alert(TEXT.MESSAGES.INVALID_IMAGE_TYPE);
+                return;
+            }
+            
+            if (image.size > VALIDATION.MAX_IMAGE_SIZE) {
+                alert(TEXT.MESSAGES.IMAGE_TOO_LARGE);
+                return;
+            }
         }
         
-        // Validate image size
-        if (formData.image.size > VALIDATION.MAX_IMAGE_SIZE) {
-            alert(TEXT.MESSAGES.IMAGE_TOO_LARGE);
-            return;
-        }
+        // Convert all images to base64 for storing in JSON
+        const imagePromises = formData.images.map(image => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve({
+                        imageData: reader.result,
+                        fileName: image.name
+                    });
+                };
+                reader.readAsDataURL(image);
+            });
+        });
         
-        // Here you would handle the form submission logic
-        // For example, create a FormData object to send to a server
-        const submitData = new FormData();
-        submitData.append('title', formData.title);
-        submitData.append('description', formData.description);
-        submitData.append('year', formData.year);
-        submitData.append('image', formData.image);
+        // Wait for all image conversions to complete
+        const imageResults = await Promise.all(imagePromises);
         
-        console.log('Submitting artwork:', {
+        // Create a new artwork object with the form data
+        const newArtwork = {
+            id: Date.now().toString(), // Generate a unique ID using timestamp
             title: formData.title,
             description: formData.description,
             year: formData.year,
-            imageFileName: formData.image.name
-        });
+            images: imageResults,
+            dateCreated: new Date().toISOString()
+        };
         
-        // For now, just show a success message
-        alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
+        // Save artwork using GitHub API and update local state
+        const saveResult = await saveArtwork(newArtwork);
         
-        // Then navigate back to home page
-        navigate('/');
+        if (saveResult) {
+            // Show success message
+            alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
+            
+            // Navigate back to home page
+            navigate('/');
+        } else {
+            alert('There was an error saving your artwork. Please try again.');
+        }
     }
 
     const handleBackToHome = () => {
@@ -192,9 +298,9 @@ function AddArtPage() {
                 </div>
                 
                 <div className="form-group">
-                    <label htmlFor="image">{TEXT.FORM_LABELS.IMAGE}</label>
+                    <label htmlFor="image">{TEXT.FORM_LABELS.IMAGES}</label>
                     <div 
-                        className={`file-input-container ${isDragging ? 'dragging' : ''} ${imagePreview ? 'has-preview' : ''}`}
+                        className={`file-input-container ${isDragging ? 'dragging' : ''} ${imagePreviews.length > 0 ? 'has-preview' : ''}`}
                         onDragEnter={handleDragEnter}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -207,10 +313,29 @@ function AddArtPage() {
                             accept={VALIDATION.ALLOWED_IMAGE_TYPES.join(',')}
                             onChange={handleImageChange}
                             ref={fileInputRef}
+                            multiple
                         />
-                        {imagePreview ? (
-                            <div className="file-preview">
-                                <img src={imagePreview} alt="Preview" />
+                        
+                        {imagePreviews.length > 0 ? (
+                            <div className="image-previews-container">
+                                {imagePreviews.map((preview, index) => (
+                                    <div key={index} className="image-preview-item">
+                                        <img src={preview.preview} alt={`Preview ${index + 1}`} />
+                                        <button 
+                                            type="button" 
+                                            className="remove-image-btn" 
+                                            onClick={() => handleRemoveImage(index)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                                <div className="add-more-images">
+                                    <label htmlFor="image" className="add-image-label">
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        <span>Add More</span>
+                                    </label>
+                                </div>
                             </div>
                         ) : (
                             <div className="file-input-placeholder">
@@ -222,11 +347,11 @@ function AddArtPage() {
                 </div>
 
                 <div className="form-actions">
-                    <button type="submit" className="submit-button">
+                    <button type="submit" className="submit-button" disabled={isSubmitting}>
                         <FontAwesomeIcon icon={faUpload} className="button-icon" />
-                        {TEXT.SUBMIT_BUTTON}
+                        {isSubmitting ? 'Submitting...' : TEXT.SUBMIT_BUTTON}
                     </button>
-                    <button type="button" className="back-button" onClick={handleBackToHome}>
+                    <button type="button" className="back-button" onClick={handleBackToHome} disabled={isSubmitting}>
                         <FontAwesomeIcon icon={faArrowLeft} className="button-icon" />
                         {TEXT.BACK_BUTTON}
                     </button>

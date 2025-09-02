@@ -8,14 +8,13 @@ function ArtLayoutPage() {
   const [artworks, setArtworks] = useState([])
   
   useEffect(() => {
-    // Load artworks from data.json
     if (artworkData && artworkData.artworks) {
       setArtworks(artworkData.artworks)
     }
   }, [])
 
   return (
-    <div className="art-layout-container">
+    <div className="art-layout-container">      
       <main className="gallery-grid">
         {artworks.length > 0 ? (
           artworks.map((artwork) => (
@@ -29,11 +28,10 @@ function ArtLayoutPage() {
           ))
         ) : (
           <div className="empty-gallery-message">
-            <p>No artworks found. Add some art to get started!</p>
+            <p>Sorry. No artworks found.</p>
           </div>
         )}
       </main>
-      <Link to="/" className="back-link">Back to Main Page</Link>
     </div>
   )
 }

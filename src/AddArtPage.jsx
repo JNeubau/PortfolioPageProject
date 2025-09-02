@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowLeft, faImage } from '@fortawesome/free-solid-svg-icons'
-import {  
+import { 
     VALIDATION, 
     TEXT, 
     DEFAULTS 
@@ -15,7 +15,6 @@ function AddArtPage() {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        category: DEFAULTS.CATEGORY,
         year: DEFAULTS.YEAR,
         image: null
     });
@@ -130,7 +129,6 @@ function AddArtPage() {
         console.log('Submitting artwork:', {
             title: formData.title,
             description: formData.description,
-            category: formData.category,
             year: formData.year,
             imageFileName: formData.image.name
         });
@@ -147,7 +145,7 @@ function AddArtPage() {
     }
 
     return (
-        <div className={`add-art-container ${theme}`}>
+        <div className="add-art-container">
             <h2>{TEXT.ADD_ART_TITLE}</h2>
             <p>{TEXT.ADD_ART_SUBTITLE}</p>
             

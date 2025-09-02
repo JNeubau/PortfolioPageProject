@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowLeft, faImage } from '@fortawesome/free-solid-svg-icons'
@@ -20,6 +20,29 @@ function AddArtPage() {
     });
     const [imagePreview, setImagePreview] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    
+    // Function to save data to the file system through our custom API endpoint
+    const saveToFile = async (artworks) => {
+        try {
+            const response = await fetch('/api/save-artwork', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ artworks }),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('Data saved to file successfully');
+            } else {
+                console.error('Error saving data to file:', result.message);
+            }
+        } catch (error) {
+            console.error('Error saving data to file:', error);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -118,26 +141,49 @@ function AddArtPage() {
             return;
         }
         
-        // Here you would handle the form submission logic
-        // For example, create a FormData object to send to a server
-        const submitData = new FormData();
-        submitData.append('title', formData.title);
-        submitData.append('description', formData.description);
-        submitData.append('year', formData.year);
-        submitData.append('image', formData.image);
+        // Convert image to base64 for storing in JSON
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            // Create a new artwork object with the form data
+            const newArtwork = {
+                id: Date.now().toString(), // Generate a unique ID using timestamp
+                title: formData.title,
+                description: formData.description,
+                year: formData.year,
+                imageData: reader.result, // Include the base64 image data
+                fileName: formData.image.name,
+                dateCreated: new Date().toISOString()
+            };
+            
+            // Get existing artworks from localStorage or initialize empty array
+            let existingArtworks = [];
+            try {
+                const savedData = localStorage.getItem('artworks');
+                if (savedData) {
+                    existingArtworks = JSON.parse(savedData);
+                }
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
+            }
+            
+            // Add the new artwork
+            existingArtworks.push(newArtwork);
+            
+            // Save to localStorage for persistence between sessions
+            localStorage.setItem('artworks', JSON.stringify(existingArtworks));
+            
+            // Save to file using our custom API endpoint
+            saveToFile(existingArtworks);
+            
+            // Show success message
+            alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
+            
+            // Navigate back to home page
+            navigate('/');
+        };
         
-        console.log('Submitting artwork:', {
-            title: formData.title,
-            description: formData.description,
-            year: formData.year,
-            imageFileName: formData.image.name
-        });
-        
-        // For now, just show a success message
-        alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
-        
-        // Then navigate back to home page
-        navigate('/');
+        // Start the reading process
+        reader.readAsDataURL(formData.image);
     }
 
     const handleBackToHome = () => {

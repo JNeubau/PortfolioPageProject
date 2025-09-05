@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs'
 import path from 'path'
+import { loadEnv } from 'vite'
 
 // Custom plugin to save artwork data to a file
 const saveArtworkPlugin = () => {
@@ -56,7 +57,17 @@ const saveArtworkPlugin = () => {
 };
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), saveArtworkPlugin()],
-  base: "/PortfolioPageProject"
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
+  const env = loadEnv(mode, process.cwd(), '')
+  
+  return {
+    plugins: [react(), saveArtworkPlugin()],
+    base: "/PortfolioPageProject",
+    // Make sure VITE_GITHUB_TOKEN is available to the client
+    define: {
+      'process.env.VITE_GITHUB_TOKEN': JSON.stringify(env.VITE_GITHUB_TOKEN)
+    }
+  }
 })

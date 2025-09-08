@@ -11,7 +11,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: release/gh_pages
@@ -35,6 +35,6 @@ jobs:
           git config --local user.name "GitHub Action"
           git add src/assets/data.json
           git diff --quiet && git diff --staged --quiet || git commit -m "Add new artwork submission"
-          git push
+          git push origin release/gh_pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -32,8 +32,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git fetch origin release/gh_pages
-          git checkout release/gh_pages
           git add src/assets/data.json
           git diff --quiet && git diff --staged --quiet || git commit -m "Add new artwork submission"
           git push

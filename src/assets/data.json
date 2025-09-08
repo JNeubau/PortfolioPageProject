@@ -172,6 +172,19 @@
       ],
       "title": "ghj",
       "year": 2025
+    },
+    {
+      "dateCreated": "2025-09-08T17:11:05.269Z",
+      "description": "This is a test submission to verify GitHub Actions workflow",
+      "id": "test-1757351465268",
+      "images": [
+        {
+          "fileName": "test-image.png",
+          "imageData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        }
+      ],
+      "title": "Workflow Test Artwork",
+      "year": 2025
     }
   ]
 }

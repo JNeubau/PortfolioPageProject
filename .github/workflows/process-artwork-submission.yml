@@ -67,9 +67,13 @@ jobs:
 
       - name: Trigger deploy workflow
         if: success()
-        uses: peter-evans/repository-dispatch@v2
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-deploy
-          repository: ${{ github.repository }}
-          client-payload: '{"ref": "release/gh_pages"}'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy.yml',
+              ref: 'release/gh_pages'
+            });

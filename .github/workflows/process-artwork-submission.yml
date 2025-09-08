@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - name: Checkout release branch explicitly
         uses: actions/checkout@v4
@@ -56,7 +57,7 @@ jobs:
             git commit -m "Add new artwork submission"
             
             # Force push to ensure it goes to the correct branch
-            git push --force-with-lease origin release/gh_pages
+            git push origin release/gh_pages
             
             echo "Push completed. Verifying current branch:"
             git branch --show-current

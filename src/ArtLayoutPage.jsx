@@ -9,38 +9,28 @@ function ArtLayoutPage() {
   const [artworks, setArtworks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   
-  // Function to load artworks from localStorage, data.json or fallback to default data
+  // Function to load artworks from data.json or fallback to default data
   const loadArtworks = async () => {
     setIsLoading(true);
     try {
-      // First try to fetch the latest data.json file which would contain GitHub-committed data
+      // Try to fetch the latest data.json file which would contain GitHub-committed data
       try {
         const response = await fetch('./assets/data.json');
         if (response.ok) {
           const data = await response.json();
           if (data && data.artworks && data.artworks.length > 0) {
             setArtworks(data.artworks);
-            // Update localStorage with the latest data
-            localStorage.setItem('artworks', JSON.stringify(data.artworks));
             setIsLoading(false);
             return;
           }
         }
       } catch (fetchError) {
-        console.warn('Could not fetch data.json, falling back to localStorage:', fetchError);
+        console.warn('Could not fetch data.json, falling back to default data:', fetchError);
       }
       
-      // If fetch fails or data is empty, try localStorage
-      const savedArtworks = localStorage.getItem('artworks');
-      if (savedArtworks) {
-        // If found in localStorage, use that data
-        const parsedArtworks = JSON.parse(savedArtworks);
-        setArtworks(parsedArtworks);
-      } else if (defaultArtworkData && defaultArtworkData.artworks) {
-        // If not in localStorage, use the default imported data
+      // If fetch fails or data is empty, use the default imported data
+      if (defaultArtworkData && defaultArtworkData.artworks) {
         setArtworks(defaultArtworkData.artworks);
-        // Also save the default data to localStorage for future use
-        localStorage.setItem('artworks', JSON.stringify(defaultArtworkData.artworks));
       }
     } catch (error) {
       console.error('Error loading artworks:', error);
@@ -57,18 +47,19 @@ function ArtLayoutPage() {
     // Load artworks when component mounts
     loadArtworks();
     
-    // Add event listener for artworksUpdated custom event
-    const handleArtworksUpdated = (event) => {
-      if (event.detail && event.detail.artworks) {
-        setArtworks(event.detail.artworks);
+    // Add event listener for artworkSubmitted custom event
+    const handleArtworkSubmitted = (event) => {
+      if (event.detail && event.detail.artwork) {
+        // Add the new artwork to the existing artworks
+        setArtworks(prevArtworks => [...prevArtworks, event.detail.artwork]);
       }
     };
     
-    window.addEventListener('artworksUpdated', handleArtworksUpdated);
+    window.addEventListener('artworkSubmitted', handleArtworkSubmitted);
     
     // Clean up the event listener when component unmounts
     return () => {
-      window.removeEventListener('artworksUpdated', handleArtworksUpdated);
+      window.removeEventListener('artworkSubmitted', handleArtworkSubmitted);
     };
   }, []);
 

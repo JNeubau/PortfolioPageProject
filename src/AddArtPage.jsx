@@ -23,7 +23,7 @@ function AddArtPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    // Function to save data using GitHub API and update local state
+    // Function to save data using only GitHub API
     const saveArtwork = async (newArtwork) => {
         try {
             setIsSubmitting(true);
@@ -31,41 +31,22 @@ function AddArtPage() {
             // Submit to GitHub API
             const result = await submitArtworkToGitHub(newArtwork);
             
-            // Even if GitHub API fails, we still save to localStorage
-            // This ensures data is saved locally even if the token is not configured
-            
-            // Get existing artworks from localStorage or initialize empty array
-            let existingArtworks = [];
-            try {
-                const savedData = localStorage.getItem('artworks');
-                if (savedData) {
-                    existingArtworks = JSON.parse(savedData);
-                }
-            } catch (error) {
-                console.error('Error reading from localStorage:', error);
-            }
-            
-            // Add the new artwork to local storage
-            existingArtworks.push(newArtwork);
-            localStorage.setItem('artworks', JSON.stringify(existingArtworks));
-            
-            // Create a custom event to notify other components that data has been updated
-            window.dispatchEvent(new CustomEvent('artworksUpdated', { 
-                detail: { artworks: existingArtworks } 
-            }));
-            
-            // If GitHub API was not successful, show a warning but still return true
-            // since we saved to localStorage
+            // Check if GitHub API submission was successful
             if (!result.success) {
                 console.warn('GitHub API submission was not successful:', result.message);
-                alert('Your artwork was saved locally but there was an issue saving to the server: ' + result.message);
-                return true;
+                alert('There was an issue saving to the server: ' + result.message);
+                return false;
             }
+            
+            // Create a custom event to notify other components that data has been updated
+            window.dispatchEvent(new CustomEvent('artworkSubmitted', { 
+                detail: { artwork: newArtwork } 
+            }));
             
             return true;
         } catch (error) {
             console.error('Error saving artwork:', error);
-            alert('There was an error: ' + error.message + ' Your artwork may not have been saved.');
+            alert('There was an error: ' + error.message + ' Your artwork was not saved.');
             return false;
         } finally {
             setIsSubmitting(false);
@@ -242,7 +223,7 @@ function AddArtPage() {
             // Navigate back to home page
             navigate('/');
         } else {
-            alert('There was an error saving your artwork. Please try again.');
+            alert('There was an error saving your artwork to GitHub. Please try again.');
         }
     }
 

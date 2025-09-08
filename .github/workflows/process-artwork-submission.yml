@@ -15,6 +15,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: release/gh_pages
+          fetch-depth: 0
           
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -31,10 +32,21 @@ jobs:
         
       - name: Commit and push if changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Ensure we're on the release/gh_pages branch
+          git checkout release/gh_pages
+          
+          # Stage the changes
           git add src/assets/data.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Add new artwork submission"
-          git push origin release/gh_pages
+          
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add new artwork submission [skip ci]"
+            git push origin release/gh_pages
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

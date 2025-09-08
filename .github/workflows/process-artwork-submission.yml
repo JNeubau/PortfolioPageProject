@@ -10,15 +10,17 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout release branch explicitly
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: release/gh_pages
+          fetch-depth: 0
           
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '24'
           
       - name: Install dependencies
         run: npm ci
@@ -30,10 +32,34 @@ jobs:
         
       - name: Commit and push if changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Debug info
+          echo "Current branch before operations:"
+          git branch --show-current
+          
+          # Make sure we're on the release/gh_pages branch
+          git checkout release/gh_pages
+          
+          echo "Current branch after checkout:"
+          git branch --show-current
+          
+          # Stage the changes
           git add src/assets/data.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Add new artwork submission"
-          git push
+          
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            echo "Committing changes to release/gh_pages branch"
+            git commit -m "Add new artwork submission [skip ci]"
+            
+            # Force push to ensure it goes to the correct branch
+            git push --force-with-lease origin release/gh_pages
+            
+            echo "Push completed. Verifying current branch:"
+            git branch --show-current
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

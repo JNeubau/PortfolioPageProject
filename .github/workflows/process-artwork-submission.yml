@@ -53,7 +53,7 @@ jobs:
             echo "No changes to commit"
           else
             echo "Committing changes to release/gh_pages branch"
-            git commit -m "Add new artwork submission [skip ci]"
+            git commit -m "Add new artwork submission"
             
             # Force push to ensure it goes to the correct branch
             git push --force-with-lease origin release/gh_pages

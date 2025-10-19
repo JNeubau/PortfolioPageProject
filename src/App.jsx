@@ -17,12 +17,12 @@ function App() {
   return (
     <div className="full-width-container">
       <header className="art-header">
-        <div className='header-bar' style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center'}}>
+        <div className='header-bar' style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', flexDirection: 'revert'}}>
           <h1
             className="app-title"
             style={{
               width: '50%',
-              textAlign: 'right',
+              textAlign: 'left',
               order: window.innerWidth < 600 ? 0 : 1,
               flexBasis: window.innerWidth < 600 ? '100%' : '50%',
               marginBottom: window.innerWidth < 600 ? '12px' : 0
@@ -34,7 +34,7 @@ function App() {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'start',
+              alignItems: 'end',
               width: window.innerWidth < 600 ? '100%' : '50%',
               order: window.innerWidth < 600 ? 1 : 2
             }}

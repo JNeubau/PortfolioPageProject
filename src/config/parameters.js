@@ -15,15 +15,17 @@ export const LAYOUTS = {
 // Color palette (matches CSS variables but accessible in JS)
 export const COLORS = {
   // Primary colors
-  PRIMARY: '#4A86E8',         // --art-accent-color
+  PRIMARY: 'black',         // --art-accent-color
+  // PRIMARY: '#4A86E8',         // --art-accent-color
   SECONDARY: '#4CAF50',       // Submit button color
   SUCCESS: '#45a049',         // Submit hover color
   ERROR: '#e74c3c',
   WARNING: '#f39c12',
-  INFO: '#3498db',
+  INFO: 'gray',
+  // INFO: '#3498db',
   
   // Background colors
-  BG_LIGHT: '#ebd7c6ff',        // --art-bg-color (light theme)
+  BG_LIGHT: 'white',        // --art-bg-color (light theme)
   // BG_LIGHT: '#f8f9fa',        // --art-bg-color (light theme)
   BG_DARK: '#222831',         // --art-bg-color (dark theme)
   

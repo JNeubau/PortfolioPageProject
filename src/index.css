@@ -20,6 +20,7 @@ a {
   text-decoration: inherit;
 }
 a:hover {
+  /* color: black; */
   color: #747bff;
 }
 
@@ -50,7 +51,8 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: black;
+  /* border-color: #646cff; */
 }
 button:focus,
 button:focus-visible {
@@ -63,7 +65,8 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: black;
+    /* color: #747bff; */
   }
   button {
     background-color: #f9f9f9;

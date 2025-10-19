@@ -700,6 +700,7 @@
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  pointer-events: auto; /* ensure preview items accept pointer events */
 }
 
 .image-preview-item img {
@@ -724,6 +725,7 @@
   cursor: pointer;
   opacity: 0.8;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 5; /* put remove button above the invisible file input */
 }
 
 .remove-image-btn:hover {

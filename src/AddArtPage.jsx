@@ -145,13 +145,21 @@ function AddArtPage() {
         }
     }
     
-    const handleRemoveImage = (index) => {
+    const handleRemoveImage = (event, index) => {
+        // Prevent the click from bubbling to the parent file input/label
+        if (event && typeof event.stopPropagation === 'function') {
+            event.stopPropagation();
+        }
+        if (event && typeof event.preventDefault === 'function') {
+            event.preventDefault();
+        }
+
         const newImages = [...formData.images];
         newImages.splice(index, 1);
-        
+
         const newPreviews = [...imagePreviews];
         newPreviews.splice(index, 1);
-        
+
         setFormData(prevData => ({
             ...prevData,
             images: newImages
@@ -305,7 +313,7 @@ function AddArtPage() {
                                         <button 
                                             type="button" 
                                             className="remove-image-btn" 
-                                            onClick={() => handleRemoveImage(index)}
+                                            onClick={(e) => handleRemoveImage(e, index)}
                                         >
                                             ×
                                         </button>

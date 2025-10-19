@@ -50,6 +50,7 @@ export const BREAKPOINTS = {
 export const VALIDATION = {
   MIN_TITLE_LENGTH: 3,
   MAX_TITLE_LENGTH: 100,
+  MAX_LINK_LENGTH: 100,
   MAX_DESCRIPTION_LENGTH: 1000,
   MIN_YEAR: 2000,
   MAX_YEAR: new Date().getFullYear(),
@@ -89,20 +90,24 @@ export const TEXT = {
     TITLE: 'Artwork Title',
     DESCRIPTION: 'Description',
     YEAR: 'Year Created',
-    IMAGES: 'Upload Images'
+    IMAGES: 'Upload Images',
+    LINK: 'Link to Full Work (optional)'
   },
 
   // Form placeholders
   FORM_PLACEHOLDERS: {
     TITLE: 'Enter the title of your artwork',
     DESCRIPTION: 'Describe your artwork, techniques used, inspiration, etc.',
-    FILE_UPLOAD: 'Choose files or drop them here'
+    FILE_UPLOAD: 'Choose files or drop them here',
+    LINK: 'Enter a URL to view the full artwork online (optional)'
   },
   
   // Success/error messages
   MESSAGES: {
-    SUBMISSION_SUCCESS: (title) => `Art "${title}" submitted successfully!`,
+    SUBMISSION_SUCCESS:  `Art submitted successfully!`,
+    // SUBMISSION_SUCCESS: (title) => `Art "${title}" submitted successfully!`,
     TITLE_REQUIRED: 'Please enter a title for your artwork',
+    LINK_TOO_LONG: 'This link is too long.',
     IMAGE_REQUIRED: 'Please upload at least one image of your artwork',
     INVALID_IMAGE_TYPE: 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)',
     IMAGE_TOO_LARGE: 'Image size exceeds the maximum allowed (5MB)'

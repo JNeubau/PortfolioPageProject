@@ -214,16 +214,26 @@
 @media (min-width: 768px) {
   .gallery-item.horizontal-layout {
     flex-direction: row;
-    height: 250px;
+    /* let the card height be determined by its content (the image) */
+    height: auto;
+    align-items: flex-start; /* allow image to dictate height */
   }
   
+  /* Make image take ~75% and content ~25% on desktop */
   .gallery-item.horizontal-layout .item-image-container {
-    flex: 0 0 350px;
+    flex: 0 0 75%;
+    max-width: 75%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
   }
   
   .gallery-item.horizontal-layout .item-content {
-    flex: 1;
-    padding: 1.5rem;
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 1rem 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -232,17 +242,30 @@
 }
 
 .item-image-container {
+  /* default preview size on mobile */
   height: 250px;
   width: 100%;
 }
 
 .item-image {
   height: 100%;
-  background-color: #e9eef7;
+  background-color: var(--art-bg-color);
   border-bottom: 1px solid var(--art-border-color);
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  /* limit the card image to viewport so the card can grow but not overflow */
+  max-height: 80vh;
 }
 
 .placeholder {

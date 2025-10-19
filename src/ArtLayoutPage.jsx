@@ -75,7 +75,9 @@ function ArtLayoutPage() {
             <GalleryCard
               key={artwork.id}
               title={artwork.title}
-              description={`${artwork.description} (${artwork.year})`}
+              link={artwork.link}
+              year={artwork.year}
+              description={artwork.description}
               images={artwork.images}
               imageData={artwork.imageData}
             />

@@ -14,8 +14,9 @@ function AddArtPage() {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
-        title: '',
+        // title: '',
         description: '',
+        link: '',
         year: DEFAULTS.YEAR,
         images: []
     });
@@ -145,13 +146,21 @@ function AddArtPage() {
         }
     }
     
-    const handleRemoveImage = (index) => {
+    const handleRemoveImage = (event, index) => {
+        // Prevent the click from bubbling to the parent file input/label
+        if (event && typeof event.stopPropagation === 'function') {
+            event.stopPropagation();
+        }
+        if (event && typeof event.preventDefault === 'function') {
+            event.preventDefault();
+        }
+
         const newImages = [...formData.images];
         newImages.splice(index, 1);
-        
+
         const newPreviews = [...imagePreviews];
         newPreviews.splice(index, 1);
-        
+
         setFormData(prevData => ({
             ...prevData,
             images: newImages
@@ -163,8 +172,13 @@ function AddArtPage() {
         e.preventDefault();
         
         // Validate form using validation rules from parameters
-        if (!formData.title.trim() || formData.title.length < VALIDATION.MIN_TITLE_LENGTH) {
-            alert(TEXT.MESSAGES.TITLE_REQUIRED);
+        // if (!formData.title.trim() || formData.title.length < VALIDATION.MIN_TITLE_LENGTH) {
+        //     alert(TEXT.MESSAGES.TITLE_REQUIRED);
+        //     return;
+        // }
+
+        if (formData.link.trim() && formData.link.length > VALIDATION.MAX_LINK_LENGTH) {
+            alert(TEXT.MESSAGES.LINK_TOO_LONG);
             return;
         }
         
@@ -206,7 +220,8 @@ function AddArtPage() {
         // Create a new artwork object with the form data
         const newArtwork = {
             id: Date.now().toString(), // Generate a unique ID using timestamp
-            title: formData.title,
+            // title: formData.title,
+            link: formData.link,
             description: formData.description,
             year: formData.year,
             images: imageResults,
@@ -218,7 +233,8 @@ function AddArtPage() {
         
         if (saveResult) {
             // Show success message
-            alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
+            alert(TEXT.MESSAGES.SUBMISSION_SUCCESS);
+            // alert(TEXT.MESSAGES.SUBMISSION_SUCCESS(formData.title));
             
             // Navigate back to home page
             navigate('/');
@@ -237,7 +253,7 @@ function AddArtPage() {
             <p>{TEXT.ADD_ART_SUBTITLE}</p>
             
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
+                {/* <div className="form-group">
                     <label htmlFor="title">{TEXT.FORM_LABELS.TITLE}</label>
                     <input 
                         type="text" 
@@ -250,7 +266,7 @@ function AddArtPage() {
                         maxLength={VALIDATION.MAX_TITLE_LENGTH}
                         placeholder={TEXT.FORM_PLACEHOLDERS.TITLE}
                     />
-                </div>
+                </div> */}
                 
                 <div className="form-group">
                     <label htmlFor="description">{TEXT.FORM_LABELS.DESCRIPTION}</label>
@@ -262,6 +278,19 @@ function AddArtPage() {
                         rows="4"
                         maxLength={VALIDATION.MAX_DESCRIPTION_LENGTH}
                         placeholder={TEXT.FORM_PLACEHOLDERS.DESCRIPTION}
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="link">{TEXT.FORM_LABELS.LINK}</label>
+                    <textarea 
+                        id="link" 
+                        name="link" 
+                        value={formData.link}
+                        onChange={handleChange}
+                        // rows="4"
+                        maxLength={VALIDATION.MAX_LINK_LENGTH}
+                        placeholder={TEXT.FORM_PLACEHOLDERS.LINK}
                     />
                 </div>
                 
@@ -305,7 +334,7 @@ function AddArtPage() {
                                         <button 
                                             type="button" 
                                             className="remove-image-btn" 
-                                            onClick={() => handleRemoveImage(index)}
+                                            onClick={(e) => handleRemoveImage(e, index)}
                                         >
                                             ×
                                         </button>
